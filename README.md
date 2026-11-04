@@ -17,7 +17,7 @@ A modern, open dashboard for Home Assistant apps, add-ons, and custom integratio
 - Contextual metrics, version distributions, and complete version tables.
 - Daily installation history for the past 30, 90, or 365 days, with measurements available in tables.
 - Light and dark modes, a responsive interface, and reduced animations when requested by your system settings.
-- Shareable views, CSV export, six preconfigured project views, and automatically updated SVG badges.
+- Shareable views, CSV export, preconfigured project views for all of your apps and integrations, and automatically updated SVG badges.
 - Self-hosted fonts, no additional visitor tracking, and no requests to external font services.
 
 ## Understanding the data
@@ -40,7 +40,9 @@ The project's own history starts with the first successful data fetch. Earlier p
 2. Under **Actions**, enable workflows for this fork if GitHub has disabled them.
 3. Run the **Build and deploy Observatory** workflow manually or push changes to `main`.
 
-The workflow tests the application, fetches and validates all three data sources, builds the site, and publishes it using the official Pages actions. It also runs daily at **04:17 UTC**. A failed data fetch does not replace the published site.
+The workflow tests the application, fetches and validates all three data sources, builds the site, and publishes it using the official Pages actions. It also runs daily at **04:17 UTC**. A failed data fetch does not replace the published site. The **Data freshness watchdog** workflow checks every six hours that the published data is younger than 36 hours; otherwise it re-enables and triggers the deploy workflow.
+
+The same run resolves store authors (`public/data/authors.json`) by hashing known repository URLs and GitHub search results. See [docs/app-slugs.md](docs/app-slugs.md).
 
 The separate `data` branch stores a compressed history archive (`history.json.gz`) containing up to 365 days of data. It contains no application code and must be preserved to maintain a continuous history. The frontend serves small, per-project history files that are loaded only when a project is selected. The workflow uses `GITHUB_TOKEN`; no personal API keys are required.
 
@@ -79,12 +81,13 @@ https://seb5594.github.io/homeassistant-app-stats/?filter=68413af6
 | `tab=integrations` | Show custom integrations (default: apps) |
 | `filter=...` | Search by name, slug, or domain |
 | `store=4c7fee11` | Filter by an exact app store |
+| `author=seb5594` | Show every store and integration attributed to an author |
 | `item=core_mosquitto` | Select a dataset entry |
 | `project=vacuum_mapguard` | Select a preconfigured personal project |
 | `days=30` / `90` / `365` | Set the history period |
 | `view=projects` | Open personal projects and the badge generator |
 
-Ready-to-use links and Markdown snippets are available in [docs/repository-links.md](docs/repository-links.md). You can also copy them from the expandable README badge section of each card in the project overview.
+How slugs, store hashes, and authors work, and why entries can be missing, is explained in [docs/app-slugs.md](docs/app-slugs.md). Ready-to-use links and Markdown snippets are available in [docs/repository-links.md](docs/repository-links.md). You can also copy them from the expandable README badge section of each card in the project overview.
 
 Personal projects are configured in `src/catalog.js`. For apps, the analytics ID combines the store hash and the app slug. The Supervisor calculates the store hash from the first eight characters of the SHA-1 hash of the lowercase store URL. The current store, `https://github.com/seb5594/Home-Assistant-Apps`, produces `4c7fee11`; known individual repositories previously used as personal stores are also included. Statistics from Poeschl's store are not attributed to your projects. Custom integrations are matched using the exact domain from `manifest.json`.
 

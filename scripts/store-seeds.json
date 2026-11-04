@@ -1,0 +1,24 @@
+{
+  "hashes": [
+    { "hash": "core", "author": "Home Assistant", "label": "Official apps" },
+    { "hash": "local", "author": "Local", "label": "Locally installed apps" },
+    { "hash": "68413af6", "author": "Poeschl", "label": "Poeschl (legacy)" }
+  ],
+  "repositories": [
+    { "url": "https://github.com/hassio-addons/repository", "label": "Community apps" },
+    { "url": "https://github.com/esphome/home-assistant-addon" },
+    { "url": "https://github.com/music-assistant/home-assistant-addon" },
+    { "url": "https://github.com/Poeschl/Hassio-Addons" },
+    { "url": "https://github.com/seb5594/Home-Assistant-Apps", "label": "seb5594 apps" },
+    { "url": "https://github.com/seb5594/Home-Assistant-git-exporter-Addon" },
+    { "url": "https://github.com/seb5594/Home-Assistant-Rsync-Local-Addon" },
+    { "url": "https://github.com/seb5594/Home-Assistant-Playstation-VR-Camera-Loader-App" }
+  ],
+  "topics": [
+    "home-assistant-addons",
+    "homeassistant-addons",
+    "hassio-addons",
+    "hassio-repository",
+    "home-assistant-apps"
+  ]
+}

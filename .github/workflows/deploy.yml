@@ -31,8 +31,11 @@ jobs:
             git fetch origin refs/heads/data:refs/remotes/origin/data
             git show FETCH_HEAD:history.json.gz > .cache/history.json.gz
           fi
-      - name: Fetch and validate official analytics
+      - name: Fetch and validate official analytics, then resolve store authors
         run: npm run data
+        env:
+          # Lifts the search rate limit used to discover app stores by topic.
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
       - name: Persist compressed history on data branch
         shell: bash
