@@ -1,0 +1,38 @@
+name: Data freshness watchdog
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '43 */6 * * *'
+permissions:
+  actions: write
+  contents: read
+env:
+  METADATA_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/metadata.json
+  MAX_AGE_HOURS: 36
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare the published fetch time with the allowed age
+        id: age
+        shell: bash
+        run: |
+          collected=$(curl -fsS --retry 3 "$METADATA_URL" | jq -r '.collectedAt // empty' || true)
+          if [ -z "$collected" ]; then
+            echo "No published metadata found; treating the site as stale."
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          age_hours=$(( ( $(date +%s) - $(date -d "$collected" +%s) ) / 3600 ))
+          echo "Published data is ${age_hours}h old (limit: ${MAX_AGE_HOURS}h)."
+          echo "stale=$([ "$age_hours" -ge "$MAX_AGE_HOURS" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Re-enable the deploy workflow if GitHub paused it
+        if: steps.age.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable deploy.yml --repo "$GITHUB_REPOSITORY" || true
+      - name: Trigger a fresh build
+        if: steps.age.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref "${{ github.event.repository.default_branch }}"

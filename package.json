@@ -12,7 +12,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5050",
-    "data": "node scripts/update-data.mjs",
+    "data": "node scripts/update-data.mjs && node scripts/update-authors.mjs",
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
