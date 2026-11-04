@@ -2,6 +2,15 @@
 <html lang="de"><head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#11294b" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Apply the theme before first paint to avoid a light flash in dark mode.
+      try {
+        var saved = localStorage.getItem('observatory-theme')
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      } catch (e) { /* the app applies the theme itself */ }
+    </script>
 <meta name="description" content="Home Assistant in Zahlen: Installationen, Versionen und Trends für Apps, Add-ons und Custom Integrations. Offen, übersichtlich und einfach teilbar." />
 <meta property="og:title" content="HA Observatory · Home Assistant in Zahlen" />
 <meta property="og:description" content="Ein offener Blick auf das Home-Assistant-Ökosystem. Apps, Custom Integrations und die Menschen, die sie nutzen." />

@@ -16,4 +16,4 @@
 .banner-actions{margin-left:auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;z-index:1}
 .banner-actions>a{white-space:nowrap;font-size:10px;display:flex;gap:8px;align-items:center;color:#bad4f2}
 @media (max-width:700px){.projects-banner{flex-wrap:wrap}.banner-actions{margin-left:0;justify-content:flex-start}}
-.banner-actions .button{color:#193b69;font-weight:600}
+.banner-actions .button{background:#ffffff14;border-color:#ffffff2e;color:#e6f1ff;font-weight:600}.banner-actions .button:hover{background:#ffffff26;border-color:#ffffff4d}

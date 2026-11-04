@@ -16,10 +16,18 @@ const sort = ref('total'), limit = ref(60), mobileMenu = ref(false), loading = r
 const authorIndex = ref({}), datasets = ref({ apps: [], integrations: [] }), errors = ref({}), history = ref({}), metadata = ref({}), historyUnavailable = ref(false)
 const sourcesDialog = ref(null), shareDialog = ref(null)
 const icons = { git: GitBranch, drive: HardDrive, camera: Camera, bike: Bike, audio: AudioLines, map: MapIcon, bot: Bot, wifi: Wifi, server: Server }
-let timer, storedTheme = 'light'
-try { storedTheme = localStorage.getItem('observatory-theme') || 'light' } catch { /* optional preference */ }
-const theme = ref(storedTheme)
-watch(theme, value => { document.documentElement.dataset.theme = value; try { localStorage.setItem('observatory-theme', value) } catch { /* optional preference */ } }, { immediate: true })
+let timer, storedTheme = ''
+const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)')
+try { storedTheme = localStorage.getItem('observatory-theme') || '' } catch { /* optional preference */ }
+// Without an explicit choice the dashboard follows the operating system and reacts when it changes.
+const theme = ref(storedTheme || (systemDark?.matches ? 'dark' : 'light'))
+const themeChosen = ref(Boolean(storedTheme))
+watch(theme, value => { document.documentElement.dataset.theme = value; document.documentElement.style.colorScheme = value }, { immediate: true })
+function toggleTheme() {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'; themeChosen.value = true
+  try { localStorage.setItem('observatory-theme', theme.value) } catch { /* optional preference */ }
+}
+function onSystemTheme(event) { if (!themeChosen.value) theme.value = event.matches ? 'dark' : 'light' }
 const entries = computed(() => datasets.value[kind.value])
 const activeProject = computed(() => projects.find(p => p.id === projectId.value && p.kind === kind.value))
 const filtered = computed(() => {
@@ -106,8 +114,8 @@ function onPopState() {
   kind.value = p.get('tab') === 'integrations' ? 'integrations' : 'apps'; query.value = p.get('filter') || ''; store.value = p.get('store') || ''; author.value = p.get('author') || ''; projectId.value = p.get('project') || ''; selectedId.value = p.get('item') || ''; view.value = p.get('view') === 'projects' ? 'projects' : 'overview'; days.value = [30, 90, 365].includes(Number(p.get('days'))) ? Number(p.get('days')) : 90
 }
 function tabKey(event) { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); switchKind(event.key === 'Home' ? 'apps' : event.key === 'End' ? 'integrations' : kind.value === 'apps' ? 'integrations' : 'apps'); nextTick(() => document.getElementById(`tab-${kind.value}`)?.focus()) } }
-onMounted(() => { load(); window.addEventListener('popstate', onPopState) })
-onBeforeUnmount(() => { clearTimeout(timer); window.removeEventListener('popstate', onPopState) })
+onMounted(() => { load(); window.addEventListener('popstate', onPopState); systemDark?.addEventListener('change', onSystemTheme) })
+onBeforeUnmount(() => { clearTimeout(timer); window.removeEventListener('popstate', onPopState); systemDark?.removeEventListener('change', onSystemTheme) })
 </script>
 
 <template>
@@ -120,7 +128,7 @@ onBeforeUnmount(() => { clearTimeout(timer); window.removeEventListener('popstat
   <div class="sidebar-divider"></div><div class="sidebar-section-title">ENTDECKEN</div>
   <a class="side-link" href="https://analytics.home-assistant.io/" target="_blank" rel="noreferrer"><Globe2 :size="17" /> Offizielle Analytics <ArrowUpRight :size="14" /></a><a class="side-link" :href="repository" target="_blank" rel="noreferrer"><Github :size="17" /> Auf GitHub <ArrowUpRight :size="14" /></a>
   <div class="community-note"><div class="community-icon"><Sparkles :size="18" /></div><strong>Von der Community.<br />Für die Community.</strong><p>Offene Daten machen sichtbar, was wir gemeinsam bewegen.</p><a :href="repository" target="_blank" rel="noreferrer">Projekt entdecken <ArrowUpRight :size="14" /></a></div>
-  <div class="sidebar-bottom"><div class="avatar">s.</div><div><strong>seb5594</strong><small>Open-source enthusiast</small></div><button class="theme-button" :aria-label="theme === 'dark' ? 'Helles Design' : 'Dunkles Design'" @click="theme = theme === 'dark' ? 'light' : 'dark'"><Sun v-if="theme === 'dark'" :size="17" /><Moon v-else :size="17" /></button></div>
+  <div class="sidebar-bottom"><div class="avatar">s.</div><div><strong>seb5594</strong><small>Open-source enthusiast</small></div><button class="theme-button" :aria-label="theme === 'dark' ? 'Helles Design' : 'Dunkles Design'" @click="toggleTheme"><Sun v-if="theme === 'dark'" :size="17" /><Moon v-else :size="17" /></button></div>
 </aside>
 <div class="page-shell">
 <header class="topbar"><div class="breadcrumbs"><button class="mobile-toggle icon-button" aria-label="Navigation öffnen" @click="mobileMenu = !mobileMenu"><Menu :size="21" /></button><House :size="15" /><ChevronRight :size="13" /><span>Observatory</span><ChevronRight :size="13" /><strong>{{ view === 'projects' ? 'Meine Projekte' : 'Überblick' }}</strong></div><div class="topbar-right"><span class="open-data"><span></span> Offene Daten</span><a :href="repository" aria-label="Quellcode auf GitHub" target="_blank" rel="noreferrer"><Github :size="19" /></a></div></header>
