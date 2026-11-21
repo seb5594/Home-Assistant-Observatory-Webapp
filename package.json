@@ -4,7 +4,7 @@
   "private": true,
   "description": "Beautiful, shareable analytics for Home Assistant apps and custom integrations. Track adoption, explore versions, and give your open-source projects a home in numbers.",
   "type": "module",
-  "packageManager": "npm@12.2.0",
+  "packageManager": "npm@12.2.3",
   "engines": {
     "node": ">=22.12"
   },
